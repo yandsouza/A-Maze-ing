@@ -1,2 +1,5 @@
 def parse_config():
-    pass
+    contents = ""
+    with open("config.txt", "r") as file:
+        contents = file.read()
+        print(contents)
