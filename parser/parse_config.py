@@ -1,8 +1,8 @@
-def parse_config() -> None:
+def parse_config(path: str) -> None:
     data: dict[str, str] = {}
 
     try:
-        with open("config.txt", "r", encoding="utf-8") as file:
+        with open(path, "r", encoding="utf-8") as file:
             for i, raw_line in enumerate(file, start=1):
                 line = raw_line.strip()
 
@@ -10,7 +10,7 @@ def parse_config() -> None:
                     continue
 
                 if "=" not in line:
-                    raise Exception(f"Invalid line format at line {i}.")
+                    raise Exception(f"Invalid input at line {i}.")
 
                 key, value = line.split("=", maxsplit=1)
                 data[key.strip()] = value.strip()
