@@ -18,4 +18,6 @@ def output_maze(
         fx, fy = maze.exit
         f.write(f"{ex},{ey}\n")
         f.write(f"{fx},{fy}\n")
+
+        f.write("".join(path) + "\n")
 """

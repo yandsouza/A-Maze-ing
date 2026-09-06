@@ -14,6 +14,9 @@ def main() -> None:
     output_file = Path(config.pop("output_file"))
 
     maze = MazeGenerator(config["width"], config["height"])
+    solution = maze.solve(0, 0, 19, 19)
+
+    print(solution)
 
     "Necessario entrada e saida no maze para esse funcao"
     output_maze(maze, output_file)

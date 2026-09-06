@@ -176,27 +176,24 @@ class MazeGenerator:
         start_y: int,
         end_x: int,
         end_y: int,
-    ) -> str:
-        queue = deque([(start_x, start_y, "")])
-        visited = {(start_x, start_y)}
-
+    ) -> list[str]:
+        queue: deque[tuple[int, int, list[str]]] = deque(
+            [(start_x, start_y, [])]
+        )
+        visited: set[tuple[int, int]] = {(start_x, start_y)}
         moves = [
             (0, -1, self.N, "N"),
             (1, 0, self.E, "E"),
             (0, 1, self.S, "S"),
             (-1, 0, self.W, "W"),
         ]
-
         while queue:
             cx, cy, path = queue.popleft()
-
             if cx == end_x and cy == end_y:
                 return path
-
             for dx, dy, direction, letter in moves:
                 nx = cx + dx
                 ny = cy + dy
-
                 if (
                     0 <= nx < self.width
                     and 0 <= ny < self.height
@@ -204,9 +201,8 @@ class MazeGenerator:
                     and (nx, ny) not in visited
                 ):
                     visited.add((nx, ny))
-                    queue.append((nx, ny, path + letter))
-
-        return ""
+                    queue.append((nx, ny, path + [letter]))
+        return []
 
     def get_grid(self) -> list[list[int]]:
         return self.grid
