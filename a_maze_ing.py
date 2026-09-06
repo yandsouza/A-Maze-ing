@@ -14,6 +14,8 @@ def main() -> None:
     output_file = Path(config.pop("output_file"))
 
     maze = MazeGenerator(config["width"], config["height"])
+
+    "Necessario entrada e saida no maze para esse funcao"
     output_maze(maze, output_file)
 
 if __name__ == "__main__":
