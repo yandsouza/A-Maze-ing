@@ -1,6 +1,8 @@
 import sys
+from pathlib import Path
 from parser import parse_config
 from mazegen import MazeGenerator
+from output import output_maze
 
 
 def main() -> None:
@@ -9,7 +11,10 @@ def main() -> None:
         return
 
     config = parse_config(sys.argv[1])
+    output_file = Path(config.pop("output_file"))
+
     maze = MazeGenerator(config["width"], config["height"])
+    output_maze(maze, output_file)
 
 if __name__ == "__main__":
     main()
