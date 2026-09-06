@@ -17,7 +17,7 @@ def parse_config(path: str) -> None:
 
                 key, value = line.split("=", maxsplit=1)
                 config[key.strip()] = value.strip()
-            convert_data(config)
+            return convert_data(config)
     except FileNotFoundError as error:
         print(error)
 
