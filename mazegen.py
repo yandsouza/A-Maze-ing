@@ -31,6 +31,7 @@ class MazeGenerator:
         self.pattern_cells: set[tuple[int, int]] = set()
 
         self._place_42()
+        self.generate()
 
     def _place_42(self) -> None:
         pattern_42 = [

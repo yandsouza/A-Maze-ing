@@ -9,8 +9,7 @@ def main() -> None:
         return
 
     config = parse_config(sys.argv[1])
-    maze = MazeGenerator()
-
+    maze = MazeGenerator(config["width"], config["height"])
 
 if __name__ == "__main__":
     main()
