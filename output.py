@@ -13,7 +13,9 @@ def output_maze(
             out += "\n"
         f.write(out + "\n")
 
+"""
         ex, ey = maze.entry
         fx, fy = maze.exit
         f.write(f"{ex},{ey}\n")
         f.write(f"{fx},{fy}\n")
+"""
