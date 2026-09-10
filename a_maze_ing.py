@@ -4,6 +4,8 @@ from pathlib import Path
 from parser import parse_config
 from mazegen import MazeGenerator
 from output import output_maze
+from visualizer import draw_maze
+import menu
 
 
 def main() -> None:
@@ -18,8 +20,8 @@ def main() -> None:
         return
 
     output_file = Path(config["output_file"])
-
     entry_x, entry_y = config["entry"]
+    exit_x, exit_y = config["exit"]
     exit_x, exit_y = config["exit"]
 
     maze = MazeGenerator(
@@ -36,8 +38,6 @@ def main() -> None:
         exit_y,
     )
 
-    print("Solution:", "".join(solution))
-
     output_maze(
         maze,
         output_file,
@@ -46,6 +46,15 @@ def main() -> None:
         (exit_x, exit_y),
     )
 
+    menu.run(
+        maze,
+        solution,
+        (entry_x, entry_y),
+        (exit_x, exit_y),
+        config["width"],
+        config["height"],
+        config["perfect"],
+    )
 
 if __name__ == "__main__":
     main()

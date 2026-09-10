@@ -1,4 +1,25 @@
+from __future__ import annotations
 from mazegen import MazeGenerator
+
+RESET = "\033[0m"
+
+WALL_COLOR_PALETTES: list[tuple[str, str]] = [
+    ("232", "252"),
+    ("52", "223"),
+    ("22", "194"),
+    ("17", "159"),
+]
+
+ENTRY_COLOR = "201"
+EXIT_COLOR = "196"
+PATTERN_COLOR = "246"
+PATH_COLOR = "51"
+
+PIXEL = "  "
+
+
+def _bg(color_code: str) -> str:
+    return f"\033[48;5;{color_code}m"
 
 
 def get_path_cells(
@@ -24,91 +45,78 @@ def get_path_cells(
     return cells
 
 
+def _build_canvas(
+    maze: MazeGenerator,
+    entry: tuple[int, int],
+    exit_: tuple[int, int],
+    path_cells: set[tuple[int, int]],
+    wall_color: str,
+    floor_color: str,
+) -> list[list[str]]:
+    canvas_width = 2 * maze.width + 1
+    canvas_height = 2 * maze.height + 1
+
+    canvas = [
+        [wall_color for _ in range(canvas_width)]
+        for _ in range(canvas_height)
+    ]
+
+    for y in range(maze.height):
+        for x in range(maze.width):
+            cell = maze.grid[y][x]
+            cx, cy = 2 * x + 1, 2 * y + 1
+
+            if (x, y) in maze.pattern_cells:
+                fill = PATTERN_COLOR
+            elif (x, y) in path_cells:
+                fill = PATH_COLOR
+            else:
+                fill = floor_color
+
+            canvas[cy][cx] = fill
+
+            if not cell & MazeGenerator.N:
+                canvas[cy - 1][cx] = fill
+            if not cell & MazeGenerator.E:
+                canvas[cy][cx + 1] = fill
+            if not cell & MazeGenerator.S:
+                canvas[cy + 1][cx] = fill
+            if not cell & MazeGenerator.W:
+                canvas[cy][cx - 1] = fill
+
+    ex, ey = entry
+    fx, fy = exit_
+    canvas[2 * ey + 1][2 * ex + 1] = ENTRY_COLOR
+    canvas[2 * fy + 1][2 * fx + 1] = EXIT_COLOR
+
+    return canvas
+
+
 def draw_maze(
     maze: MazeGenerator,
     entry: tuple[int, int],
-    exit: tuple[int, int],
+    exit_: tuple[int, int],
     path: list[str],
+    show_path: bool = False,
+    color_index: int = 0,
 ) -> None:
-    path_cells = get_path_cells(entry, path)
+    palette = WALL_COLOR_PALETTES[color_index % len(WALL_COLOR_PALETTES)]
+    wall_color, floor_color = palette
 
-    for y in range(maze.height):
-        top = ""
+    path_cells = get_path_cells(entry, path) if show_path else set()
 
-        for x in range(maze.width):
-            cell = maze.grid[y][x]
-
-            if cell & MazeGenerator.N:
-                top += "+---"
-            else:
-                top += "+   "
-
-        top += "+"
-        print(top)
-
-        middle = ""
-
-        for x in range(maze.width):
-            cell = maze.grid[y][x]
-
-            if cell & MazeGenerator.W:
-                middle += "|"
-            else:
-                middle += " "
-
-            if (x, y) == entry:
-                middle += " S "
-            elif (x, y) == exit:
-                middle += " E "
-            elif (x, y) in path_cells:
-                middle += " . "
-            else:
-                middle += "   "
-
-        cell = maze.grid[y][maze.width - 1]
-
-        if cell & MazeGenerator.E:
-            middle += "|"
-        else:
-            middle += " "
-
-        print(middle)
-
-    bottom = ""
-
-    for x in range(maze.width):
-        cell = maze.grid[maze.height - 1][x]
-
-        if cell & MazeGenerator.S:
-            bottom += "+---"
-        else:
-            bottom += "+   "
-
-    bottom += "+"
-    print(bottom)
-
-
-if __name__ == "__main__":
-    maze = MazeGenerator(
-        10,
-        10,
-        perfect=True,
-        seed=42,
-    )
-
-    entry = (0, 0)
-    exit = (9, 9)
-
-    path = maze.solve(
-        entry[0],
-        entry[1],
-        exit[0],
-        exit[1],
-    )
-
-    draw_maze(
+    canvas = _build_canvas(
         maze,
         entry,
-        exit,
-        path,
+        exit_,
+        path_cells,
+        wall_color,
+        floor_color,
     )
+
+    lines = [
+        "".join(f"{_bg(color)}{PIXEL}{RESET}" for color in row)
+        for row in canvas
+    ]
+
+    print("\n".join(lines))
