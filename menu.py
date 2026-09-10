@@ -10,7 +10,8 @@ MENU_TEXT = """=== A-Maze-ing ===
 4. Quit
 """
 
-def clear_terminal():
+
+def clear_terminal() -> None:
     os.system('cls' if os.name == 'nt' else 'clear')
 
 

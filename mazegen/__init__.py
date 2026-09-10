@@ -1,3 +1,3 @@
 from .generator import MazeGenerator
 
-all = ["MazeGenerator"]
+__all__ = ["MazeGenerator"]
