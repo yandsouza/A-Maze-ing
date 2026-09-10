@@ -49,7 +49,7 @@ def _build_canvas(
     maze: MazeGenerator,
     entry: tuple[int, int],
     exit_: tuple[int, int],
-    path_cells: set[tuple[int, int]],
+    path: list[str],
     wall_color: str,
     floor_color: str,
 ) -> list[list[str]]:
@@ -68,8 +68,6 @@ def _build_canvas(
 
             if (x, y) in maze.pattern_cells:
                 fill = PATTERN_COLOR
-            elif (x, y) in path_cells:
-                fill = PATH_COLOR
             else:
                 fill = floor_color
 
@@ -83,6 +81,28 @@ def _build_canvas(
                 canvas[cy + 1][cx] = fill
             if not cell & MazeGenerator.W:
                 canvas[cy][cx - 1] = fill
+
+    x, y = entry
+    canvas[2 * y + 1][2 * x + 1] = PATH_COLOR
+
+    moves = {
+        "N": (0, -1),
+        "E": (1, 0),
+        "S": (0, 1),
+        "W": (-1, 0),
+    }
+
+    for move in path:
+        dx, dy = moves[move]
+        nx, ny = x + dx, y + dy
+
+        cx, cy = 2 * x + 1, 2 * y + 1
+        ncx, ncy = 2 * nx + 1, 2 * ny + 1
+
+        canvas[(cy + ncy) // 2][(cx + ncx) // 2] = PATH_COLOR
+        canvas[ncy][ncx] = PATH_COLOR
+
+        x, y = nx, ny
 
     ex, ey = entry
     fx, fy = exit_
@@ -103,13 +123,13 @@ def draw_maze(
     palette = WALL_COLOR_PALETTES[color_index % len(WALL_COLOR_PALETTES)]
     wall_color, floor_color = palette
 
-    path_cells = get_path_cells(entry, path) if show_path else set()
+    displayed_path = path if show_path else []
 
     canvas = _build_canvas(
         maze,
         entry,
         exit_,
-        path_cells,
+        displayed_path,
         wall_color,
         floor_color,
     )
