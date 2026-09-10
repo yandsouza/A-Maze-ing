@@ -1,6 +1,7 @@
 from __future__ import annotations
 from mazegen import MazeGenerator
 from visualizer import WALL_COLOR_PALETTES, draw_maze
+import os
 
 MENU_TEXT = """=== A-Maze-ing ===
 1. Re-generate a new maze
@@ -8,6 +9,9 @@ MENU_TEXT = """=== A-Maze-ing ===
 3. Rotate the wall colours
 4. Quit
 """
+
+def clear_terminal():
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def run(
@@ -18,11 +22,13 @@ def run(
     width: int,
     height: int,
     perfect: bool,
+    seed: int | None = None,
 ) -> None:
     show_path = False
     color_index = 0
 
     while True:
+        clear_terminal()
         draw_maze(maze, entry, exit_, solution, show_path, color_index)
         print(MENU_TEXT)
 
@@ -33,7 +39,8 @@ def run(
             return
 
         if choice == "1":
-            maze = MazeGenerator(width, height, perfect, None)
+            print("\033[3A", end="")
+            maze = MazeGenerator(width, height, perfect, seed)
             solution = maze.solve(
                 entry[0],
                 entry[1],

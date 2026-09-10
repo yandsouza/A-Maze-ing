@@ -1,11 +1,10 @@
 import sys
 from pathlib import Path
 
-from parser import parse_config
+import menu
+from parse_config import parse_config
 from mazegen import MazeGenerator
 from output import output_maze
-from visualizer import draw_maze
-import menu
 
 
 def main() -> None:
@@ -21,7 +20,6 @@ def main() -> None:
 
     output_file = Path(config["output_file"])
     entry_x, entry_y = config["entry"]
-    exit_x, exit_y = config["exit"]
     exit_x, exit_y = config["exit"]
 
     maze = MazeGenerator(
@@ -54,7 +52,9 @@ def main() -> None:
         config["width"],
         config["height"],
         config["perfect"],
+        config.get("seed")
     )
+
 
 if __name__ == "__main__":
     main()

@@ -13,6 +13,13 @@ run:
 debug:
 	$(PYTHON) -m pdb $(SCRIPT) $(CONFIG)
 
+lint:
+	flake8 .
+	mypy --strict .
+
+fix:
+	pip config set global.index-url https://pypi.org/simple/
+
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type d -name ".mypy_cache" -exec rm -rf {} +
