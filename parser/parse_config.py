@@ -1,57 +1,172 @@
-from typing import Any
+from typing import TypedDict
 
 
-def parse_config(path: str) -> None:
+class Config(TypedDict):
+    width: int
+    height: int
+    entry: tuple[int, int]
+    exit: tuple[int, int]
+    perfect: bool
+    seed: int | None
+    output_file: str
+
+
+def validate_keys(config: dict[str, str]) -> None:
+    required_keys = {
+        "WIDTH",
+        "HEIGHT",
+        "ENTRY",
+        "EXIT",
+        "OUTPUT_FILE",
+        "PERFECT",
+    }
+
+    missing = required_keys - config.keys()
+
+    if missing:
+        raise ValueError(
+            f"Missing required keys: {', '.join(sorted(missing))}"
+        )
+
+
+def validate_dimension(value: str, name: str) -> int:
+    try:
+        dimension = int(value)
+    except ValueError:
+        raise ValueError(
+            f"{name} must be a positive integer."
+        )
+
+    if dimension <= 0:
+        raise ValueError(
+            f"{name} must be a positive integer."
+        )
+
+    return dimension
+
+
+def parse_coordinates(value: str, name: str) -> tuple[int, int]:
+    parts = value.split(",")
+
+    if len(parts) != 2:
+        raise ValueError(
+            f"{name} must have the format x,y."
+        )
+
+    try:
+        x = int(parts[0].strip())
+        y = int(parts[1].strip())
+    except ValueError:
+        raise ValueError(
+            f"{name} coordinates must be integers."
+        )
+
+    return x, y
+
+
+def parse_seed(value: str) -> int:
+    try:
+        return int(value)
+    except ValueError:
+        raise ValueError(
+            "SEED must be an integer."
+        )
+
+
+def parse_output_file(value: str) -> str:
+    if not value:
+        raise ValueError(
+            "OUTPUT_FILE must not be empty."
+        )
+
+    return value
+
+
+def parse_config(path: str) -> Config:
     config: dict[str, str] = {}
 
-    try:
-        with open(path, "r", encoding="utf-8") as file:
-            for i, raw_line in enumerate(file, start=1):
-                line = raw_line.strip()
+    with open(path, "r", encoding="utf-8") as file:
+        for i, raw_line in enumerate(file, start=1):
+            line = raw_line.strip()
 
-                if not line or line.startswith("#"):
-                    continue
+            if not line or line.startswith("#"):
+                continue
 
-                if "=" not in line:
-                    raise Exception(f"Invalid input at line {i}.")
+            if "=" not in line:
+                raise ValueError(
+                    f"Invalid input at line {i}."
+                )
 
-                key, value = line.split("=", maxsplit=1)
-                config[key.strip()] = value.strip()
-            return convert_data(config)
-    except FileNotFoundError as error:
-        print(error)
+            key, value = line.split("=", maxsplit=1)
+            config[key.strip()] = value.strip()
+
+    validate_keys(config)
+    return convert_data(config)
 
 
-def convert_data(config: dict[str, str]) -> dict[str, Any]:
-    safe_config: dict[str, Any] = {}
+def convert_data(config: dict[str, str]) -> Config:
+    width = validate_dimension(
+        config["WIDTH"],
+        "WIDTH",
+    )
 
-    try:
-        safe_config["width"] = int(config["WIDTH"])
-    except Exception as error:
-        print(error)
+    height = validate_dimension(
+        config["HEIGHT"],
+        "HEIGHT",
+    )
 
-    try:
-        safe_config["height"] = int(config["HEIGHT"])
-    except Exception as error:
-        print(error)
+    entry = parse_coordinates(
+        config["ENTRY"],
+        "ENTRY",
+    )
 
-    try:
-        x, y = config["ENTRY"].split(",", maxsplit=1)
-        safe_config["entry"] = (int(x), int(y))
-    except Exception as error:
-        print(error)
+    exit = parse_coordinates(
+        config["EXIT"],
+        "EXIT",
+    )
 
-    try:
-        x, y = config["EXIT"].split(",", maxsplit=1)
-        safe_config["exit"] = (int(x), int(y))
-    except Exception as error:
-        print(error)
+    entry_x, entry_y = entry
+    exit_x, exit_y = exit
 
-    safe_config["output_file"] = config["OUTPUT_FILE"]
+    if not (0 <= entry_x < width and 0 <= entry_y < height):
+        raise ValueError(
+            "ENTRY coordinates are out of bounds."
+        )
+
+    if not (0 <= exit_x < width and 0 <= exit_y < height):
+        raise ValueError(
+            "EXIT coordinates are out of bounds."
+        )
+
+    if entry == exit:
+        raise ValueError(
+            "ENTRY and EXIT must be different."
+        )
 
     if config["PERFECT"] == "True":
-        safe_config["perfect"] = True
+        perfect = True
+    elif config["PERFECT"] == "False":
+        perfect = False
     else:
-        safe_config["perfect"] = False
+        raise ValueError(
+            "PERFECT must be either True or False."
+        )
 
-    return safe_config
+    seed: int | None = None
+
+    if "SEED" in config:
+        seed = parse_seed(config["SEED"])
+
+    output_file = parse_output_file(
+        config["OUTPUT_FILE"]
+    )
+
+    return {
+        "width": width,
+        "height": height,
+        "entry": entry,
+        "exit": exit,
+        "perfect": perfect,
+        "seed": seed,
+        "output_file": output_file,
+    }

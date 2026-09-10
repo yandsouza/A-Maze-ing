@@ -1,23 +1,25 @@
-from mazegen import MazeGenerator
 from pathlib import Path
+
+from mazegen import MazeGenerator
+
 
 def output_maze(
     maze: MazeGenerator,
     output_path: Path,
+    path: list[str],
+    entry: tuple[int, int],
+    exit: tuple[int, int],
 ) -> None:
-    with output_path.open("w") as f:
-        out = ""
+    with output_path.open("w", encoding="utf-8") as file:
         for row in maze.grid:
-            for cell in row:
-                out += f"{cell:X}"
-            out += "\n"
-        f.write(out + "\n")
+            line = "".join(f"{cell:X}" for cell in row)
+            file.write(line + "\n")
 
-"""
-        ex, ey = maze.entry
-        fx, fy = maze.exit
-        f.write(f"{ex},{ey}\n")
-        f.write(f"{fx},{fy}\n")
+        file.write("\n")
 
-        f.write("".join(path) + "\n")
-"""
+        ex, ey = entry
+        fx, fy = exit
+
+        file.write(f"{ex},{ey}\n")
+        file.write(f"{fx},{fy}\n")
+        file.write("".join(path) + "\n")

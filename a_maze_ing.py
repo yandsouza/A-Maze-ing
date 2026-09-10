@@ -1,25 +1,51 @@
 import sys
 from pathlib import Path
+
 from parser import parse_config
 from mazegen import MazeGenerator
 from output import output_maze
 
 
 def main() -> None:
-    if len(sys.argv) == 1:
+    if len(sys.argv) != 2:
         print("Usage: a_maze_ing.py config.txt")
         return
 
-    config = parse_config(sys.argv[1])
-    output_file = Path(config.pop("output_file"))
+    try:
+        config = parse_config(sys.argv[1])
+    except (FileNotFoundError, ValueError) as error:
+        print(f"Error: {error}")
+        return
 
-    maze = MazeGenerator(config["width"], config["height"])
-    solution = maze.solve(0, 0, 19, 19)
+    output_file = Path(config["output_file"])
 
-    print(solution)
+    entry_x, entry_y = config["entry"]
+    exit_x, exit_y = config["exit"]
 
-    "Necessario entrada e saida no maze para esse funcao"
-    output_maze(maze, output_file)
+    maze = MazeGenerator(
+        config["width"],
+        config["height"],
+        config["perfect"],
+        config.get("seed"),
+    )
+
+    solution = maze.solve(
+        entry_x,
+        entry_y,
+        exit_x,
+        exit_y,
+    )
+
+    print("Solution:", "".join(solution))
+
+    output_maze(
+        maze,
+        output_file,
+        solution,
+        (entry_x, entry_y),
+        (exit_x, exit_y),
+    )
+
 
 if __name__ == "__main__":
     main()

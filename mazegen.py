@@ -1,6 +1,7 @@
 from collections import deque
 import random
 
+
 class MazeGenerator:
     N, E, S, W = 1, 2, 4, 8
 
@@ -49,6 +50,7 @@ class MazeGenerator:
             self.width < pattern_width + 4
             or self.height < pattern_height + 4
         ):
+            print("Error: maze is too small to place the 42 pattern.")
             return
 
         start_x = (self.width - pattern_width) // 2
@@ -91,7 +93,9 @@ class MazeGenerator:
                     unvisited_neighbors.append((nx, ny, direction))
 
             if unvisited_neighbors:
-                nx, ny, direction = self.random.choice(unvisited_neighbors)
+                nx, ny, direction = self.random.choice(
+                    unvisited_neighbors
+                )
 
                 self.grid[cy][cx] &= ~direction
                 self.grid[ny][nx] &= ~self.OPPOSITE[direction]
@@ -104,9 +108,7 @@ class MazeGenerator:
         if not self.perfect:
             self._make_playable_board()
 
-
     def _break_random_wall(self, x: int, y: int) -> bool:
-
         if (x, y) in self.pattern_cells:
             return False
 
@@ -141,7 +143,6 @@ class MazeGenerator:
         self.grid[ny][nx] &= ~self.OPPOSITE[direction]
 
         return True
-
 
     def _count_walls(self, x: int, y: int) -> int:
         return self.grid[y][x].bit_count()
@@ -180,20 +181,26 @@ class MazeGenerator:
         queue: deque[tuple[int, int, list[str]]] = deque(
             [(start_x, start_y, [])]
         )
+
         visited: set[tuple[int, int]] = {(start_x, start_y)}
+
         moves = [
             (0, -1, self.N, "N"),
             (1, 0, self.E, "E"),
             (0, 1, self.S, "S"),
             (-1, 0, self.W, "W"),
         ]
+
         while queue:
             cx, cy, path = queue.popleft()
+
             if cx == end_x and cy == end_y:
                 return path
+
             for dx, dy, direction, letter in moves:
                 nx = cx + dx
                 ny = cy + dy
+
                 if (
                     0 <= nx < self.width
                     and 0 <= ny < self.height
@@ -201,7 +208,10 @@ class MazeGenerator:
                     and (nx, ny) not in visited
                 ):
                     visited.add((nx, ny))
-                    queue.append((nx, ny, path + [letter]))
+                    queue.append(
+                        (nx, ny, path + [letter])
+                    )
+
         return []
 
     def get_grid(self) -> list[list[int]]:
