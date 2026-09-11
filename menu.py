@@ -1,8 +1,11 @@
 """Interactive terminal menu for regenerating and solving the maze."""
 from __future__ import annotations
-from mazegen import MazeGenerator
-from visualizer import WALL_COLOR_PALETTES, draw_maze
 import os
+from pathlib import Path
+
+from mazegen import MazeGenerator
+from output import output_maze
+from visualizer import WALL_COLOR_PALETTES, draw_maze
 
 MENU_TEXT = """=== A-Maze-ing ===
 1. Re-generate a new maze
@@ -20,12 +23,13 @@ def clear_terminal() -> None:
 def run(
     maze: MazeGenerator,
     solution: list[str],
+    output_file: Path,
     entry: tuple[int, int],
     exit_: tuple[int, int],
     width: int,
     height: int,
     perfect: bool,
-    seed: int | None = None,
+    seed: int | None = None
 ) -> None:
     """Run the interactive menu loop for the maze.
 
@@ -48,6 +52,7 @@ def run(
         if choice == "1":
             print("\033[3A", end="")
             maze = MazeGenerator(width, height, perfect, seed)
+            output_maze(maze, output_file, solution, entry, exit_)
             solution = maze.solve(
                 entry[0],
                 entry[1],
@@ -59,6 +64,7 @@ def run(
         elif choice == "3":
             color_index = (color_index + 1) % len(WALL_COLOR_PALETTES)
         elif choice == "4":
+            clear_terminal()
             return
         else:
             print("Please enter a number between 1 and 4.")

@@ -55,6 +55,7 @@ def main() -> None:
     menu.run(
         maze,
         solution,
+        output_file,
         (entry_x, entry_y),
         (exit_x, exit_y),
         config["width"],
