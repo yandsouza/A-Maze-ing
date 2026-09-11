@@ -101,15 +101,21 @@ renderer.
 ```python
 from mazegen import MazeGenerator
 
-maze = MazeGenerator(width=20, height=15, perfect=False, seed=42)
 
-# The generated structure: one bitmask per cell (bit 0=N, 1=E, 2=S, 3=W;
-# a set bit means that wall is closed). Not the same format as the
-# output file written by output.py.
-grid = maze.get_grid()
+def main() -> None:
+    maze = MazeGenerator(10, 10, True, 42)
 
-# At least one solution, as a list of "N"/"E"/"S"/"W" moves.
-solution = maze.solve(start_x=0, start_y=0, end_x=19, end_y=14)
+    print("Maze:")
+    for row in maze.get_grid():
+        print(row)
+
+    print("\nSolution:")
+    path = maze.solve((0, 0), (9, 9))
+    print("".join(path))
+
+
+if __name__ == "__main__":
+    main()
 ```
 
 **Custom parameters:**
