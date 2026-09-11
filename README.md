@@ -110,7 +110,7 @@ def main() -> None:
         print(row)
 
     print("\nSolution:")
-    path = maze.solve((0, 0), (9, 9))
+    path = maze.solve(0, 0, 9, 9)
     print("".join(path))
 
 
