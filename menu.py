@@ -1,3 +1,4 @@
+"""Interactive terminal menu for regenerating and solving the maze."""
 from __future__ import annotations
 from mazegen import MazeGenerator
 from visualizer import WALL_COLOR_PALETTES, draw_maze
@@ -12,6 +13,7 @@ MENU_TEXT = """=== A-Maze-ing ===
 
 
 def clear_terminal() -> None:
+    """Clear the terminal screen on Windows or Unix-like systems."""
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
@@ -25,6 +27,10 @@ def run(
     perfect: bool,
     seed: int | None = None,
 ) -> None:
+    """Run the interactive menu loop for the maze.
+
+    Handles regeneration, path toggling, colour rotation, and quitting.
+    """
     show_path = False
     color_index = 0
 

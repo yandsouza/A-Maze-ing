@@ -1,3 +1,4 @@
+"""Write the generated maze, entry/exit coordinates, and solution to a file."""
 from pathlib import Path
 
 from mazegen import MazeGenerator
@@ -10,6 +11,7 @@ def output_maze(
     entry: tuple[int, int],
     exit: tuple[int, int],
 ) -> None:
+    """Write the maze grid and solution path to the output file."""
     with output_path.open("w", encoding="utf-8") as file:
         for row in maze.grid:
             line = "".join(f"{cell:X}" for cell in row)

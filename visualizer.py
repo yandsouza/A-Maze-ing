@@ -1,3 +1,4 @@
+"""Render the maze, entry/exit points, and solution path in the terminal."""
 from __future__ import annotations
 from mazegen import MazeGenerator
 
@@ -19,6 +20,7 @@ PIXEL = "  "
 
 
 def _bg(color_code: str) -> str:
+    """Return an ANSI escape sequence for a 256-colour background."""
     return f"\033[48;5;{color_code}m"
 
 
@@ -26,6 +28,7 @@ def get_path_cells(
     entry: tuple[int, int],
     path: list[str],
 ) -> set[tuple[int, int]]:
+    """Return the set of cells visited by a path starting from entry."""
     x, y = entry
     cells = {(x, y)}
 
@@ -53,6 +56,7 @@ def _build_canvas(
     wall_color: str,
     floor_color: str,
 ) -> list[list[str]]:
+    """Build a 2D canvas of colour codes representing the maze and path."""
     canvas_width = 2 * maze.width + 1
     canvas_height = 2 * maze.height + 1
 
@@ -120,6 +124,7 @@ def draw_maze(
     show_path: bool = False,
     color_index: int = 0,
 ) -> None:
+    """Print the maze to the terminal with optional path and colour palette."""
     palette = WALL_COLOR_PALETTES[color_index % len(WALL_COLOR_PALETTES)]
     wall_color, floor_color = palette
 

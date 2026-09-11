@@ -1,7 +1,9 @@
+"""Parse and validate the maze configuration file into a typed config dict."""
 from typing import TypedDict
 
 
 class Config(TypedDict):
+    """Typed dictionary describing the validated maze configuration."""
     width: int
     height: int
     entry: tuple[int, int]
@@ -12,6 +14,10 @@ class Config(TypedDict):
 
 
 def validate_keys(config: dict[str, str]) -> None:
+    """Ensure all required configuration keys are present.
+
+    Raises ValueError listing any missing keys.
+    """
     required_keys = {
         "WIDTH",
         "HEIGHT",
@@ -30,6 +36,7 @@ def validate_keys(config: dict[str, str]) -> None:
 
 
 def validate_dimension(value: str, name: str) -> int:
+    """Parse and validate a positive integer dimension from a string."""
     try:
         dimension = int(value)
     except ValueError:
@@ -46,6 +53,7 @@ def validate_dimension(value: str, name: str) -> int:
 
 
 def parse_coordinates(value: str, name: str) -> tuple[int, int]:
+    """Parse an 'x,y' coordinate string into a tuple of integers."""
     parts = value.split(",")
 
     if len(parts) != 2:
@@ -65,6 +73,7 @@ def parse_coordinates(value: str, name: str) -> tuple[int, int]:
 
 
 def parse_seed(value: str) -> int:
+    """Parse the SEED value from a string into an integer."""
     try:
         return int(value)
     except ValueError:
@@ -74,6 +83,7 @@ def parse_seed(value: str) -> int:
 
 
 def parse_output_file(value: str) -> str:
+    """Validate and return the output file path string."""
     if not value:
         raise ValueError(
             "OUTPUT_FILE must not be empty."
@@ -83,6 +93,7 @@ def parse_output_file(value: str) -> str:
 
 
 def parse_config(path: str) -> Config:
+    """Read, validate, and convert a config file into a Config dictionary."""
     config: dict[str, str] = {}
 
     with open(path, "r", encoding="utf-8") as file:
@@ -105,6 +116,7 @@ def parse_config(path: str) -> Config:
 
 
 def convert_data(config: dict[str, str]) -> Config:
+    """Convert raw string config values into validated typed values."""
     width = validate_dimension(
         config["WIDTH"],
         "WIDTH",
