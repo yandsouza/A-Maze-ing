@@ -3,6 +3,32 @@ import random
 
 
 class MazeGenerator:
+    """
+    Generate and solve mazes using a depth-first search algorithm.
+
+    The maze is represented as a grid of hexadecimal values, where each
+    bit corresponds to a wall:
+
+        N = 1 (North)
+        E = 2 (East)
+        S = 4 (South)
+        W = 8 (West)
+
+    A set bit means that the wall exists, while a cleared bit means that
+    the passage is open.
+
+    The generator supports two modes:
+
+    - perfect=True:
+      Creates a perfect maze with exactly one path between any two cells.
+
+    - perfect=False:
+      Creates a Pac-Man-like board with loops, fewer dead ends and
+      accessible special positions.
+
+    A "42" pattern may also be placed in the centre of large mazes.
+    """
+
     N, E, S, W = 1, 2, 4, 8
 
     OPPOSITE = {N: S, S: N, E: W, W: E}
@@ -14,6 +40,15 @@ class MazeGenerator:
         perfect: bool = False,
         seed: int | None = None,
     ) -> None:
+        """
+        Initialize the maze generator.
+
+        Args:
+            width: Maze width in cells.
+            height: Maze height in cells.
+            perfect: Generate a perfect maze if True.
+            seed: Optional random seed for reproducible mazes.
+        """
         self.width = width
         self.height = height
         self.perfect = perfect
@@ -35,6 +70,14 @@ class MazeGenerator:
         self.generate()
 
     def _place_42(self) -> None:
+        """
+        Place the "42" pattern in the centre of the maze.
+
+        Protected cells are marked as already visited so the generation
+        algorithm does not carve passages through the pattern.
+
+        If the maze is too small, the pattern is not placed.
+        """
         pattern_42 = [
             "X.X XX",
             "XXX .X",
@@ -50,7 +93,6 @@ class MazeGenerator:
             self.width < pattern_width + 4
             or self.height < pattern_height + 4
         ):
-            print("Error: maze is too small to place the 42 pattern.")
             return
 
         start_x = (self.width - pattern_width) // 2
@@ -66,6 +108,15 @@ class MazeGenerator:
                     self.visited[cell_y][cell_x] = True
 
     def generate(self) -> None:
+        """
+        Generate the maze using an iterative depth-first search algorithm.
+
+        The algorithm starts from the top-left cell and removes walls
+        between neighbouring cells until all reachable cells are visited.
+
+        If the maze is not perfect, additional modifications are applied
+        to create a more playable board.
+        """
         directions = [
             (0, -1, self.N),
             (1, 0, self.E),
@@ -109,6 +160,18 @@ class MazeGenerator:
             self._make_playable_board()
 
     def _break_random_wall(self, x: int, y: int) -> bool:
+        """
+        Remove a random wall from a cell.
+
+        Protected cells belonging to the "42" pattern are ignored.
+
+        Args:
+            x: Cell x coordinate.
+            y: Cell y coordinate.
+
+        Returns:
+            True if a wall was removed, False otherwise.
+        """
         if (x, y) in self.pattern_cells:
             return False
 
@@ -145,9 +208,25 @@ class MazeGenerator:
         return True
 
     def _count_walls(self, x: int, y: int) -> int:
+        """
+        Count how many walls a cell currently has.
+
+        Args:
+            x: Cell x coordinate.
+            y: Cell y coordinate.
+
+        Returns:
+            Number of walls in the cell.
+        """
         return self.grid[y][x].bit_count()
 
     def _make_playable_board(self) -> None:
+        """
+        Transform a perfect maze into a Pac-Man-like board.
+
+        This method reduces dead ends, creates loops, and opens the four
+        corners and the centre of the maze.
+        """
         dead_ends = {7, 11, 13, 14}
 
         for y in range(self.height):
@@ -178,6 +257,18 @@ class MazeGenerator:
         end_x: int,
         end_y: int,
     ) -> list[str]:
+        """
+        Find the shortest path between two cells using BFS.
+
+        Args:
+            start_x: Starting x coordinate.
+            start_y: Starting y coordinate.
+            end_x: Destination x coordinate.
+            end_y: Destination y coordinate.
+
+        Returns:
+            A list of movement letters: N, E, S and W.
+        """
         queue: deque[tuple[int, int, list[str]]] = deque(
             [(start_x, start_y, [])]
         )
@@ -215,4 +306,10 @@ class MazeGenerator:
         return []
 
     def get_grid(self) -> list[list[int]]:
+        """
+        Return the maze grid.
+
+        Returns:
+            The maze represented as hexadecimal wall values.
+        """
         return self.grid
